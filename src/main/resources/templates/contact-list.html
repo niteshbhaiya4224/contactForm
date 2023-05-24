@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <title>Contact List</title>
+    <link rel="stylesheet" th:href="@{/style.css}" />
+  </head>
+  <body>
+    <h1>Contact List</h1>
+    <div class="content">
+        <div id="notification-container"></div>
+      </div>
+    <div class="container">
+      <ul class="responsive-table">
+        <li class="table-header">
+          <div class="col col-1">Name</div>
+          <div class="col col-2">Email</div>
+          <div class="col col-3">Phone</div>
+          <div class="col col-4">Action &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <button class="update-button" onclick="meth2()">Add Contact</button></div>
+        </li>
+        <li class="table-row" th:each="contact : ${contacts}">
+          <div
+            class="col col-1"
+            data-label="Name"
+            th:text="${contact.name}"
+          ></div>
+          <div
+            class="col col-2"
+            data-label="Email"
+            th:text="${contact.email}"
+          ></div>
+          <div
+            class="col col-3"
+            data-label="Phone"
+            th:text="${contact.phone}"
+          ></div>
+          <div class="col col-4" data-label="Action">
+            <button class="update-button" onclick="meth()" th:object="${contact}">Update</button>
+            <button class="delete-button" onclick="deleteContact(this)" th:attr="data-contact-id=${contact.id}">Delete</button>
+          </div>
+        </li>
+      </ul>
+    </div>
+
+    <script>
+
+        function meth(){
+            window.location.href = "/update";
+        }
+        function meth2(){
+          window.location.href = "/add";
+        }
+
+     function deletedSuccessFully(message) {
+        const notification = document.createElement("div");
+        notification.classList.add("notification", "success");
+        notification.textContent = message;
+        const container = document.getElementById("notification-container");
+        container.appendChild(notification);
+        const duration = 3000;
+        setTimeout(() => {
+          container.removeChild(notification);
+        }, duration);
+      }
+
+        function deleteContact(button) {
+        var contactId = button.getAttribute("data-contact-id");
+        fetch("/delete?contactId=" + contactId, {
+          method: "POST",
+        })
+          .then((response) => {
+            if (response.ok) {
+                deletedSuccessFully("Deleted successfully!");
+              setTimeout(() => {
+          location.reload();
+        }, 500);
+            } else {
+              deletedSuccessFully("Failed to delete...");
+            }
+          })
+          .catch((error) => console.error(error));
+      }
+      </script>
+      
+  </body>
+</html>
